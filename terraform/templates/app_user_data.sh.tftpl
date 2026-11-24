@@ -1,0 +1,54 @@
+#!/bin/bash
+# ---------------------------------------------------------------------------
+# Runs ONCE, automatically, the first time each new web server boots.
+# It turns a blank Amazon Linux machine into a running copy of the portal.
+# Log file on the server: /var/log/cloud-init-output.log
+# ---------------------------------------------------------------------------
+set -euxo pipefail
+
+# 1. Install Python 3.11 and Git
+dnf install -y python3.11 git
+
+# 2. Download the website code from GitHub
+git clone --depth 1 --branch "${repo_branch}" "${repo_url}" /opt/portal
+
+# 3. Install the Python libraries the website needs
+python3.11 -m venv /opt/venv
+/opt/venv/bin/pip install --quiet --upgrade pip
+/opt/venv/bin/pip install --quiet -r /opt/portal/app/requirements.txt
+
+# 4. Settings shared by every server (same SECRET_KEY = stateless logins)
+cat > /etc/portal.env <<'ENVFILE'
+DATABASE_URL=mysql+pymysql://admin:${db_password}@${db_host}/results
+SECRET_KEY=${secret_key}
+ADMIN_PASSWORD=${admin_password}
+CACHE_TTL_SECONDS=${cache_seconds}
+ENVFILE
+chmod 600 /etc/portal.env
+
+# 5. Fill the database with fake students. Only the first server to get the
+#    database lock does this; every other server skips it instantly.
+cd /opt/portal/app
+set -a; . /etc/portal.env; set +a
+/opt/venv/bin/python seed.py --if-empty --nowait || echo "seeding skipped or failed; continuing"
+
+# 6. Run the website with Gunicorn (several worker processes) as a service
+#    that also restarts automatically if it crashes or the server reboots.
+WORKERS=$(( 2 * $(nproc) + 1 ))
+cat > /etc/systemd/system/portal.service <<UNIT
+[Unit]
+Description=Result portal
+After=network-online.target
+
+[Service]
+EnvironmentFile=/etc/portal.env
+WorkingDirectory=/opt/portal/app
+ExecStart=/opt/venv/bin/gunicorn --workers $WORKERS --bind 0.0.0.0:8000 --timeout 30 app:app
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now portal.service

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}{{ student.name }} · Result Portal{% endblock %}
+{% block topbar_actions %}
+  <div class="topbar-actions">
+    <button type="button" class="btn btn-quiet" onclick="window.print()">Print</button>
+    <form method="post" action="{{ url_for('logout') }}"><button class="btn btn-quiet">Sign out</button></form>
+  </div>
+{% endblock %}
+{% block content %}
+<article class="sheet">
+  <header class="sheet-head">
+    <div>
+      <p class="term">{{ term }}, semester {{ student.semester }}</p>
+      <h1>{{ student.name }}</h1>
+      <p class="meta">Roll no. {{ student.roll_no }} &nbsp;|&nbsp; {{ student.branch }}</p>
+    </div>
+    <div class="verdict {{ 'pass' if passed else 'fail' }}">
+      <span class="verdict-label">{{ 'Passed' if passed else 'Re-appear' }}</span>
+      <span class="sgpa"><span class="sgpa-value">{{ "%.2f"|format(sgpa) }}</span><span class="sgpa-label">SGPA</span></span>
+    </div>
+  </header>
+
+  <div class="ruled">
+    <table class="marks">
+      <caption class="visually-hidden">Subject-wise marks and grades</caption>
+      <thead>
+        <tr><th scope="col" class="hide-sm">Code</th><th scope="col">Subject</th><th scope="col" class="num hide-sm">Credits</th><th scope="col" class="num">Marks</th><th scope="col" class="grade-col">Grade</th></tr>
+      </thead>
+      <tbody>
+        {% for r in rows %}
+        <tr class="{{ 'is-fail' if r.grade == 'F' }}">
+          <td class="code hide-sm">{{ r.code }}</td>
+          <td>{{ r.subject }}<span class="show-sm sub-meta">{{ r.code }}, {{ r.credits }} credits</span></td>
+          <td class="num hide-sm">{{ r.credits }}</td>
+          <td class="num"><span class="marks-value">{{ r.marks }}</span><span class="out-of">/100</span></td>
+          <td class="grade-col"><span class="grade" style="--tilt: {{ [-6, 4, -3, 7, -5, 2][loop.index0 % 6] }}deg">{{ r.grade }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr><td class="hide-sm"></td><th scope="row">Total<span class="show-sm sub-meta">{{ total_credits }} credits</span></th><td class="num hide-sm">{{ total_credits }}</td><td class="num">{{ total_marks }}<span class="out-of">/{{ max_marks }}</span></td><td></td></tr>
+      </tfoot>
+    </table>
+  </div>
+
+  <footer class="sheet-foot">
+    <p>Grade points: A+ 10, A 9, B+ 8, B 7, C+ 6, C 5, D 4, F 0. SGPA is the credit-weighted average of grade points.</p>
+  </footer>
+</article>
+{% endblock %}

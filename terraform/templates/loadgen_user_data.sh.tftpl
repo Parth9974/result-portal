@@ -1,0 +1,46 @@
+#!/bin/bash
+# ---------------------------------------------------------------------------
+# Boot script for the Locust load-generator machines.
+#   role = "master": runs the Locust control page on port 8089
+#   role = "worker": generates the fake students and reports to the master
+# Log file on the machine: /var/log/cloud-init-output.log
+# ---------------------------------------------------------------------------
+set -euxo pipefail
+
+dnf install -y python3.11 git
+git clone --depth 1 --branch "${repo_branch}" "${repo_url}" /opt/portal
+python3.11 -m venv /opt/venv
+/opt/venv/bin/pip install --quiet --upgrade pip
+/opt/venv/bin/pip install --quiet -r /opt/portal/loadtest/requirements.txt
+
+# Each worker generates thousands of connections: raise the open-file limit.
+cat > /etc/security/limits.d/locust.conf <<'LIMITS'
+* soft nofile 65535
+* hard nofile 65535
+LIMITS
+
+%{ if role == "master" ~}
+ARGS="--master --host ${target_url} --class-picker"
+%{ else ~}
+ARGS="--worker --master-host ${master_ip} --processes -1"
+%{ endif ~}
+
+cat > /etc/systemd/system/locust.service <<UNIT
+[Unit]
+Description=Locust (${role})
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/portal/loadtest
+Environment=PEAK_USERS=${peak_users}
+LimitNOFILE=65535
+ExecStart=/opt/venv/bin/locust -f locustfile.py $ARGS
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+systemctl daemon-reload
+systemctl enable --now locust.service

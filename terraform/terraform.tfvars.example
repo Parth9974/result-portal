@@ -1,0 +1,28 @@
+# Copy this file to "terraform.tfvars" and fill in your own values.
+# terraform.tfvars is listed in .gitignore, so your password never goes to GitHub.
+
+# Your PUBLIC GitHub copy of this project (servers download the code from it)
+app_repo_url = "https://github.com/YOUR-USERNAME/result-portal.git"
+
+# Password for the /admin page (letters and digits only, at least 8)
+admin_password = "ChangeMe2026"
+
+# Learner Lab: us-east-1.  Personal account: ap-south-1 (Mumbai) is closest to Patiala.
+region = "us-east-1"
+
+# Your laptop's public IP + /32, so only you can open the Locust page.
+# Find it by searching "what is my ip".
+my_ip_cidr = "0.0.0.0/0"
+
+# ---- Change these per experiment (or pass -var on the command line) ----
+strategy        = "fixed_minimal" # fixed_minimal | reactive | scheduled | over_provisioned | scheduled_reactive
+loadgen_workers = 0               # set to 3 when you are ready to run the load test
+peak_users      = 5000
+
+# ---- Optional upgrades ----
+# enable_warm_pool  = true
+# app_cache_seconds = 60
+
+# ---- Personal AWS accounts only: email me if the month's bill passes 80% of $10 ----
+# budget_email = "you@example.com"
+# budget_usd   = 10

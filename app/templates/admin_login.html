@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %}Admin sign in · Result Portal{% endblock %}
+{% block content %}
+<section class="narrow">
+  <form class="card login-form" method="post">
+    <h1 class="h2">Examination office</h1>
+    <p class="muted">Sign in to publish or hide results.</p>
+    <label for="password">Admin password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required autofocus>
+    <button class="btn btn-primary" type="submit">Sign in</button>
+  </form>
+</section>
+{% endblock %}

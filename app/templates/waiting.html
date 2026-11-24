@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Not published yet · Result Portal{% endblock %}
+{% block topbar_actions %}
+  <div class="topbar-actions">
+    <form method="post" action="{{ url_for('logout') }}"><button class="btn btn-quiet">Sign out</button></form>
+  </div>
+{% endblock %}
+{% block content %}
+<section class="card notice">
+  <svg class="notice-art" viewBox="0 0 120 120" aria-hidden="true">
+    <rect x="28" y="14" width="64" height="88" rx="6"/>
+    <path d="M40 36h40M40 50h40M40 64h28"/>
+    <circle cx="84" cy="86" r="18"/>
+    <path d="M84 77v10l6 4"/>
+  </svg>
+  <h1>Hi {{ student.name.split()[0] }}, your result isn't out yet.</h1>
+  <p>You're signed in, so you don't need to do anything else. Come back once the examination office announces the results and this page will show your marksheet.</p>
+  <a class="btn btn-primary" href="{{ url_for('result') }}">Check again</a>
+</section>
+{% endblock %}

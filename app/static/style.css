@@ -1,0 +1,261 @@
+/* ------------------------------------------------------------------
+   Result Portal - visual system
+   An examination answer-sheet: navy ink on ruled paper, a red margin
+   line, and grades marked in red pen. Everything else stays quiet.
+   ------------------------------------------------------------------ */
+/* Fonts are served from this app (static/fonts), so the site has no
+   outside dependency on result day. All three are SIL Open Font License. */
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-400.woff2") format("woff2"); font-weight: 400; font-display: swap; }
+@font-face { font-family: "Atkinson Hyperlegible"; src: url("fonts/atkinson-700.woff2") format("woff2"); font-weight: 700; font-display: swap; }
+@font-face { font-family: "Bricolage Grotesque"; src: url("fonts/bricolage.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+@font-face { font-family: "Caveat"; src: url("fonts/caveat.woff2") format("woff2"); font-weight: 400 700; font-display: swap; }
+
+:root {
+  --paper: #FAFAF7;
+  --surface: #FFFFFF;
+  --ink: #1D2B53;          /* fountain-pen navy: text, buttons */
+  --ink-soft: #55607E;
+  --rule: #DCE3EF;         /* faint blue ruled lines */
+  --margin: #EBA3A0;       /* the red margin line of an answer sheet */
+  --redpen: #C1272D;       /* examiner's red pen: grades only */
+  --pass: #1E7A4C;
+  --wait: #9A6400;
+  --focus: #2F6FED;
+  --shadow: 0 1px 0 rgba(29, 43, 83, .06), 0 12px 32px -18px rgba(29, 43, 83, .35);
+
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-pen: "Caveat", "Segoe Print", cursive;
+
+  --row: 3rem;             /* the ruled-line height of the marksheet */
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #121827;
+    --surface: #1A2235;
+    --ink: #E6EAF5;
+    --ink-soft: #A3ACC4;
+    --rule: #2A3550;
+    --margin: #8A3B3E;
+    --redpen: #FF7B7B;
+    --pass: #5BD39A;
+    --wait: #F2B74B;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 16px 40px -20px rgba(0, 0, 0, .8);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 1.0625rem/1.55 var(--font-body);
+}
+main { flex: 1; width: 100%; max-width: 64rem; margin: 0 auto; padding: 1rem 1rem 3rem; }
+h1, h2, .h2 { font-family: var(--font-display); font-weight: 700; letter-spacing: -.015em; line-height: 1.1; margin: 0 0 .5rem; }
+h1 { font-size: clamp(1.9rem, 4.5vw, 2.75rem); }
+h2, .h2 { font-size: 1.4rem; }
+p { margin: 0 0 1rem; }
+.muted { color: var(--ink-soft); }
+.small { font-size: .9rem; }
+
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: -999px; top: .5rem; background: var(--ink); color: var(--paper); padding: .5rem 1rem; z-index: 10; }
+.skip:focus { left: .5rem; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- top bar & footer ---------- */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 1rem;
+  max-width: 64rem; width: 100%; margin: 0 auto; padding: 1.1rem 1rem;
+}
+.wordmark {
+  display: inline-flex; align-items: center; gap: .6rem;
+  font: 800 1.15rem var(--font-display); text-decoration: none; letter-spacing: -.01em;
+}
+.wordmark svg { width: 1.75rem; height: 1.75rem; }
+.wordmark rect { fill: var(--ink); }
+.wordmark path { stroke: var(--margin); stroke-width: 3.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.topbar-actions { display: flex; gap: .5rem; }
+.topbar-actions form { margin: 0; }
+
+.footer {
+  max-width: 64rem; width: 100%; margin: 0 auto; padding: 1.5rem 1rem 2rem;
+  color: var(--ink-soft); font-size: .9rem; border-top: 1px solid var(--rule);
+}
+.footer p { margin: .25rem 0; }
+.served strong { color: var(--ink); font-weight: 700; }
+.pulse {
+  display: inline-block; width: .55rem; height: .55rem; margin-right: .35rem; border-radius: 50%;
+  background: var(--pass); vertical-align: middle;
+}
+
+/* ---------- buttons, cards, forms ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 2.9rem; padding: 0 1.25rem; border-radius: .6rem; border: 1.5px solid transparent;
+  font: 700 1rem var(--font-body); text-decoration: none; cursor: pointer;
+  transition: transform .08s ease, background-color .15s ease;
+}
+.btn:active { transform: translateY(1px); }
+.btn-primary { background: var(--ink); color: var(--paper); }
+.btn-primary:hover { background: color-mix(in srgb, var(--ink) 86%, var(--redpen)); }
+.btn-quiet { background: transparent; color: var(--ink); border-color: var(--rule); min-height: 2.5rem; padding: 0 1rem; }
+.btn-quiet:hover { border-color: var(--ink-soft); }
+
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 1rem; box-shadow: var(--shadow); }
+
+label { display: block; font-weight: 700; margin: 1rem 0 .35rem; }
+input {
+  width: 100%; min-height: 3rem; padding: .6rem .85rem;
+  font: 400 1.1rem var(--font-body); color: var(--ink);
+  background: var(--paper); border: 1.5px solid var(--rule); border-radius: .6rem;
+}
+input:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 25%, transparent); }
+
+.flash {
+  max-width: 64rem; margin: 0 auto 1.25rem; padding: .85rem 1rem;
+  border-left: 4px solid var(--pass); background: color-mix(in srgb, var(--pass) 9%, var(--surface));
+  border-radius: .4rem;
+}
+.flash-error { border-left-color: var(--redpen); background: color-mix(in srgb, var(--redpen) 8%, var(--surface)); }
+.flash p { margin: 0; }
+
+/* ---------- sign-in page ---------- */
+.login { display: grid; gap: 2rem; align-items: center; padding-top: 1rem; }
+@media (min-width: 52rem) {
+  .login { grid-template-columns: 1.15fr .85fr; gap: 4rem; padding-top: 4rem; }
+}
+.login-intro h1 { font-size: clamp(2.4rem, 6.5vw, 4.25rem); font-weight: 800; letter-spacing: -.035em; line-height: .98; margin-bottom: 1.5rem; }
+.term { color: var(--ink-soft); font-weight: 700; margin-bottom: .75rem; }
+.status { display: flex; gap: .6rem; align-items: baseline; max-width: 30rem; }
+.status .dot { flex: none; width: .65rem; height: .65rem; border-radius: 50%; transform: translateY(-.05rem); }
+.status-live .dot { background: var(--pass); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pass) 20%, transparent); }
+.status-wait .dot { background: var(--wait); }
+.login-form { padding: 1.75rem; }
+.login-form .btn { width: 100%; margin-top: 1.5rem; }
+.hint { margin: 1.25rem 0 0; font-size: .9rem; color: var(--ink-soft); }
+.narrow { max-width: 26rem; margin: 3rem auto 0; }
+
+/* ---------- the marksheet (the memorable part) ---------- */
+.sheet {
+  position: relative; margin-top: .5rem;
+  background: var(--surface); border: 1px solid var(--rule); border-radius: .5rem 1rem 1rem .5rem;
+  box-shadow: var(--shadow); overflow: hidden;
+}
+.sheet::before {               /* red margin line */
+  content: ""; position: absolute; top: 0; bottom: 0; left: 2.75rem; width: 2px;
+  background: var(--margin); opacity: .8;
+}
+.sheet-head, .ruled, .sheet-foot { padding-left: 4rem; padding-right: 1.5rem; }
+.sheet-head {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: 1.5rem;
+  padding-top: 2rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--ink);
+}
+.sheet-head h1 { margin-bottom: .35rem; }
+.meta { color: var(--ink-soft); margin: 0; }
+
+.verdict { display: flex; align-items: center; gap: 1rem; }
+.verdict-label {
+  font: 700 1.05rem var(--font-body); padding: .25rem .7rem; border-radius: 999px;
+  border: 1.5px solid currentColor;
+}
+.verdict.pass .verdict-label { color: var(--pass); }
+.verdict.fail .verdict-label { color: var(--redpen); }
+.sgpa { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+.sgpa-value {
+  font: 700 3.6rem/1 var(--font-pen); color: var(--redpen);
+  padding: .1rem .7rem .25rem; border: 2.5px solid var(--redpen);
+  border-radius: 48% 52% 45% 55% / 55% 45% 55% 45%;   /* hand-drawn circle */
+  transform: rotate(-4deg);
+}
+.sgpa-label { font-size: .85rem; font-weight: 700; color: var(--ink-soft); margin-top: .4rem; }
+
+.ruled { overflow-x: auto; }
+.marks { width: 100%; border-collapse: collapse; min-width: 30rem; }
+.marks th, .marks td { height: var(--row); padding: 0 .75rem 0 0; text-align: left; border-bottom: 1px solid var(--rule); }
+.marks thead th { font-size: .85rem; color: var(--ink-soft); font-weight: 700; height: 2.5rem; }
+.marks .num { text-align: right; font-variant-numeric: tabular-nums; }
+.marks .code { color: var(--ink-soft); font-variant-numeric: tabular-nums; width: 5.5rem; }
+.marks-value { font-weight: 700; }
+.out-of { color: var(--ink-soft); font-size: .85em; margin-left: .1rem; }
+.grade-col { width: 6rem; text-align: center !important; padding-right: 0 !important; }
+.grade {
+  display: inline-block; min-width: 2.6rem;
+  font: 700 1.85rem/1 var(--font-pen); color: var(--redpen);
+  transform: rotate(var(--tilt, -4deg));
+}
+.is-fail .grade { text-decoration: underline wavy; text-underline-offset: .2rem; }
+.marks tfoot th, .marks tfoot td { font-weight: 700; border-bottom: none; border-top: 2px solid var(--ink); }
+
+.sheet-foot { padding-top: 1rem; padding-bottom: 1.5rem; color: var(--ink-soft); font-size: .88rem; }
+.sheet-foot p { margin: 0; max-width: 60ch; }
+
+/* Ink-then-pen: the grades are "marked" one after another on load. */
+@media (prefers-reduced-motion: no-preference) {
+  .grade, .sgpa-value { animation: mark .45s cubic-bezier(.2, .9, .3, 1.2) both; }
+  .marks tbody tr:nth-child(1) .grade { animation-delay: .10s; }
+  .marks tbody tr:nth-child(2) .grade { animation-delay: .22s; }
+  .marks tbody tr:nth-child(3) .grade { animation-delay: .34s; }
+  .marks tbody tr:nth-child(4) .grade { animation-delay: .46s; }
+  .marks tbody tr:nth-child(5) .grade { animation-delay: .58s; }
+  .marks tbody tr:nth-child(6) .grade { animation-delay: .70s; }
+  .sgpa-value { animation-delay: .9s; }
+}
+@keyframes mark {
+  from { opacity: 0; transform: rotate(var(--tilt, -4deg)) scale(1.6); }
+  to   { opacity: 1; transform: rotate(var(--tilt, -4deg)) scale(1); }
+}
+
+.show-sm { display: none; }
+@media (max-width: 34rem) {
+  .hide-sm { display: none; }
+  .show-sm { display: block; }
+  .sub-meta { font-size: .82rem; font-weight: 400; color: var(--ink-soft); }
+  .marks { min-width: 0; }
+  .marks td, .marks th { padding-top: .45rem; padding-bottom: .45rem; height: auto; }
+  .grade-col { width: 3.5rem; }
+  .sheet::before { left: 1.25rem; }
+  .sheet-head, .ruled, .sheet-foot { padding-left: 2rem; padding-right: 1rem; }
+  .sgpa-value { font-size: 3rem; }
+}
+
+/* ---------- waiting / error pages ---------- */
+.notice { max-width: 36rem; margin: 3rem auto 0; padding: 2.5rem 2rem; text-align: center; }
+.notice h1 { font-size: clamp(1.6rem, 4vw, 2.1rem); }
+.notice p { color: var(--ink-soft); }
+.notice-art { width: 7rem; height: 7rem; margin-bottom: 1rem; fill: none; stroke: var(--ink); stroke-width: 3; stroke-linecap: round; }
+.notice-art circle { fill: var(--surface); stroke: var(--redpen); }
+.notice-art path:last-child { stroke: var(--redpen); }
+.error-code { font: 700 4rem/1 var(--font-pen); color: var(--redpen); margin-bottom: .5rem; }
+
+/* ---------- admin ---------- */
+.admin { padding-top: 1rem; }
+.publish {
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1.25rem;
+  padding: 1.5rem; margin: 1.5rem 0; border-left: 6px solid var(--wait);
+}
+.publish.is-live { border-left-color: var(--pass); }
+.publish p { margin: 0; color: var(--ink-soft); max-width: 46ch; }
+.publish form { margin: 0; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); gap: 1rem; margin: 0; }
+.facts div { padding: 1rem 0; border-top: 2px solid var(--ink); }
+.facts dt { color: var(--ink-soft); font-weight: 700; font-size: .9rem; }
+.facts dd { margin: .25rem 0 0; font: 700 1.75rem var(--font-display); word-break: break-all; }
+.facts dd.small { font: 700 1rem var(--font-body); }
+
+/* ---------- print: just the marksheet ---------- */
+@media print {
+  .topbar, .footer, .flash { display: none; }
+  body { background: #fff; }
+  .sheet { box-shadow: none; border-color: #999; }
+  .grade, .sgpa-value { animation: none; }
+}

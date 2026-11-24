@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Result Portal{% endblock %}</title>
+  <link rel="preload" href="{{ url_for('static', filename='fonts/atkinson-400.woff2') }}" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%231D2B53'/%3E%3Cpath d='M9 17l5 5 9-12' stroke='%23F2B8B5' stroke-width='3.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+</head>
+<body class="{% block body_class %}{% endblock %}">
+  <a class="skip" href="#main">Skip to content</a>
+  <header class="topbar">
+    <a class="wordmark" href="{{ url_for('login') }}">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7"/><path d="M9 17l5 5 9-12"/></svg>
+      Result Portal
+    </a>
+    {% block topbar_actions %}{% endblock %}
+  </header>
+
+  <main id="main">
+    {% for category, message in get_flashed_messages(with_categories=true) %}
+      <div class="flash flash-{{ category }}" role="{{ 'alert' if category == 'error' else 'status' }}"><p>{{ message }}</p></div>
+    {% endfor %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <p class="served" title="Refresh the page to watch the load balancer send you to different servers">
+      <span class="pulse" aria-hidden="true"></span>
+      Served by <strong>{{ server.id }}</strong> in {{ server.zone }}
+    </p>
+    <p>Prototype for a cloud computing project. Every name and mark here is randomly generated.</p>
+  </footer>
+</body>
+</html>

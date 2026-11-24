@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Local database created by seed.py
+app/local.db
+
+# Terraform: state files contain passwords, never commit them
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+
+# Experiment output (commit results/report/ later if you want to share charts)
+results/

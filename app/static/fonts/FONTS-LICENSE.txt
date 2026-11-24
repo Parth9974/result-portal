@@ -1,0 +1,3 @@
+Atkinson Hyperlegible, Bricolage Grotesque and Caveat are licensed under the
+SIL Open Font License 1.1 (https://openfontlicense.org). Files were taken from
+https://github.com/google/fonts and subset to Latin characters.

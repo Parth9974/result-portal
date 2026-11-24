@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Sign in · Result Portal{% endblock %}
+{% block body_class %}page-login{% endblock %}
+{% block content %}
+<section class="login">
+  <div class="login-intro">
+    <p class="term">End-semester examinations, July–December 2026</p>
+    <h1>Your marks,<br>the moment they're out.</h1>
+    {% if published %}
+      <p class="status status-live"><span class="dot"></span>Results are published. Sign in to see your marksheet.</p>
+    {% else %}
+      <p class="status status-wait"><span class="dot"></span>Results haven't been published yet. You can sign in now and we'll show them as soon as they are.</p>
+    {% endif %}
+  </div>
+
+  <form class="card login-form" method="post" action="{{ url_for('login_submit') }}">
+    <h2>Sign in</h2>
+    <label for="roll_no">Roll number</label>
+    <input id="roll_no" name="roll_no" inputmode="numeric" autocomplete="username"
+           placeholder="1024030001" required autofocus>
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" autocomplete="current-password" required>
+    <button type="submit" class="btn btn-primary">See my result</button>
+    <p class="hint">Test accounts: any roll number from 1024030001 to 1024035000. The password is the roll number itself.</p>
+  </form>
+</section>
+{% endblock %}

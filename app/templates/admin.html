@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Admin · Result Portal{% endblock %}
+{% block topbar_actions %}
+  <div class="topbar-actions">
+    <form method="post" action="{{ url_for('admin_logout') }}"><button class="btn btn-quiet">Sign out</button></form>
+  </div>
+{% endblock %}
+{% block content %}
+<section class="admin">
+  <h1>Examination office</h1>
+  <p class="muted">{{ stats.term }} results</p>
+
+  <div class="card publish {{ 'is-live' if stats.published }}">
+    <div>
+      {% if stats.published %}
+        <h2>Results are published</h2>
+        <p>Students can see their marksheets{% if stats.published_at %} since {{ stats.published_at }}{% endif %}.</p>
+      {% else %}
+        <h2>Results are hidden</h2>
+        <p>Students who sign in see a "not published yet" page. Publishing is what starts the result-day rush.</p>
+      {% endif %}
+    </div>
+    <form method="post" action="{{ url_for('admin_publish') }}">
+      {% if stats.published %}
+        <button class="btn btn-quiet" name="action" value="hide">Hide results</button>
+      {% else %}
+        <button class="btn btn-primary" name="action" value="publish">Publish results</button>
+      {% endif %}
+    </form>
+  </div>
+
+  <dl class="facts">
+    <div><dt>Students</dt><dd>{{ "{:,}".format(stats.students) }}</dd></div>
+    <div><dt>Subject records</dt><dd>{{ "{:,}".format(stats.records) }}</dd></div>
+    <div><dt>This server</dt><dd class="small">{{ server.id }}<br><span class="muted">{{ server.zone }}</span></dd></div>
+  </dl>
+</section>
+{% endblock %}
